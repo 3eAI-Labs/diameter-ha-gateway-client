@@ -28,7 +28,9 @@ type MIP6AgentInfo struct {
 		DestinationHost  string `json:"destination_host"`  // AVP 293
 		DestinationRealm string `json:"destination_realm"` // AVP 283
 	} `json:"mip6_home_agent_host,omitempty"` // AVP 348
-	MIP6HomeLinkPrefix string `json:"mip6_home_link_prefix,omitempty"` // AVP 125
+	// MIP6HomeLinkPrefix (AVP 125, RFC 5447 §4.2.4) is hex: the prefix
+	// length octet followed by the 16-octet prefix.
+	MIP6HomeLinkPrefix string `json:"mip6_home_link_prefix,omitempty"`
 }
 
 // WLANOffloadability mirrors TS 29.272 §7.3.123 Grouped AVP (1667, Rel-12).

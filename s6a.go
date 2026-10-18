@@ -115,6 +115,101 @@ type S6aEvent struct {
 	//
 	// Deprecated: use SubProfile.
 	SubscriberData string `json:"subscriber_data,omitempty"`
+
+	// Further AVPs of the requests from the MME (TS 29.272 §7.2). Octet
+	// strings are hex-encoded.
+
+	// ActiveAPNs are the ULR's Active-APN AVPs (1612, §7.3.127) whole;
+	// ActiveAPN keeps only their Service-Selection.
+	ActiveAPNs []ActiveAPN `json:"active_apns,omitempty"`
+	// SMSRegisterRequest (1648, §7.3.162): SMS_REGISTRATION_REQUIRED (0),
+	// SMS_REGISTRATION_NOT_PREFERRED (1), NO_PREFERENCE (2).
+	SMSRegisterRequest *uint32 `json:"sms_register_request,omitempty"`
+	// SGsMMEIdentity (1664, §7.3.175).
+	SGsMMEIdentity string `json:"sgs_mme_identity,omitempty"`
+	// CoupledNodeDiameterID (1666, §7.3.177).
+	CoupledNodeDiameterID string `json:"coupled_node_diameter_id,omitempty"`
+	// AdjacentPLMNs (1672, §7.3.186): its Visited-PLMN-Ids, hex.
+	AdjacentPLMNs []string `json:"adjacent_plmns,omitempty"`
+	// AIRFlags (1679, §7.3.201).
+	AIRFlags uint32 `json:"air_flags,omitempty"`
+	// EPSLocationInformation (1496, §7.3.111), of a PUR.
+	EPSLocationInformation *EPSLocationInformation `json:"eps_location_information,omitempty"`
+	// MaximumUEAvailabilityTime (3329, TS 29.338 §5.3.3.22), of a NOR.
+	MaximumUEAvailabilityTime *time.Time `json:"maximum_ue_availability_time,omitempty"`
+	// VisitedNetworkIdentifier (600, TS 29.229), of a NOR.
+	VisitedNetworkIdentifier string `json:"visited_network_identifier,omitempty"`
+
+	// Further AVPs of the requests an application sends (TS 29.272 §7.2).
+	// SupportedFeatures and DRMP above are sent too.
+
+	// CLRFlags (1638, §7.3.152), of a CLR.
+	CLRFlags uint32 `json:"clr_flags,omitempty"`
+	// ResetIDs (1670, §7.3.184), of an IDR or RSR; each hex.
+	ResetIDs []string `json:"reset_ids,omitempty"`
+	// UserIDs (1444, §7.3.50) of an RSR beyond the one IMSI carries: each a
+	// leading part of an IMSI.
+	UserIDs []string `json:"user_ids,omitempty"`
+	// TraceReference (1459, §7.3.64), TSCodes (1487, §7.3.100) and SSCodes
+	// (1476, §7.3.87) of a DSR; hex.
+	TraceReference string   `json:"trace_reference,omitempty"`
+	TSCodes        []string `json:"ts_codes,omitempty"`
+	SSCodes        []string `json:"ss_codes,omitempty"`
+}
+
+// ActiveAPN (1612, TS 29.272 §7.3.127).
+type ActiveAPN struct {
+	ContextID                uint32            `json:"context_id"`
+	ServiceSelection         string            `json:"service_selection,omitempty"`
+	MIP6AgentInfo            *MIP6AgentInfo    `json:"mip6_agent_info,omitempty"`
+	VisitedNetworkIdentifier string            `json:"visited_network_identifier,omitempty"`
+	SpecificAPNInfo          []SpecificAPNInfo `json:"specific_apn_info,omitempty"`
+}
+
+// EPSLocationInformation (1496, TS 29.272 §7.3.111). Octet strings hex.
+type EPSLocationInformation struct {
+	MME  *MMELocationInformation  `json:"mme,omitempty"`
+	SGSN *SGSNLocationInformation `json:"sgsn,omitempty"`
+}
+
+// MMELocationInformation (1600, §7.3.115). CurrentLocationRetrieved:
+// ACTIVE-LOCATION-RETRIEVAL (0); AgeOfLocationInformation in minutes.
+type MMELocationInformation struct {
+	EUTRANCellGlobalIdentity string  `json:"e_utran_cell_global_identity,omitempty"`
+	TrackingAreaIdentity     string  `json:"tracking_area_identity,omitempty"`
+	GeographicalInformation  string  `json:"geographical_information,omitempty"`
+	GeodeticInformation      string  `json:"geodetic_information,omitempty"`
+	CurrentLocationRetrieved *uint32 `json:"current_location_retrieved,omitempty"`
+	AgeOfLocationInformation *uint32 `json:"age_of_location_information,omitempty"`
+}
+
+// SGSNLocationInformation (1601, §7.3.116).
+type SGSNLocationInformation struct {
+	CellGlobalIdentity       string  `json:"cell_global_identity,omitempty"`
+	LocationAreaIdentity     string  `json:"location_area_identity,omitempty"`
+	ServiceAreaIdentity      string  `json:"service_area_identity,omitempty"`
+	RoutingAreaIdentity      string  `json:"routing_area_identity,omitempty"`
+	GeographicalInformation  string  `json:"geographical_information,omitempty"`
+	GeodeticInformation      string  `json:"geodetic_information,omitempty"`
+	CurrentLocationRetrieved *uint32 `json:"current_location_retrieved,omitempty"`
+	AgeOfLocationInformation *uint32 `json:"age_of_location_information,omitempty"`
+}
+
+// EPSUserState (1495, §7.3.110). User-State (§7.3.114): DETACHED (0),
+// ATTACHED_NOT_REACHABLE_FOR_PAGING (1), ATTACHED_REACHABLE_FOR_PAGING (2),
+// CONNECTED_NOT_REACHABLE_FOR_PAGING (3), CONNECTED_REACHABLE_FOR_PAGING (4),
+// RESERVED (5).
+type EPSUserState struct {
+	MMEUserState  *uint32 `json:"mme_user_state,omitempty"`
+	SGSNUserState *uint32 `json:"sgsn_user_state,omitempty"`
+}
+
+// LocalTimeZone (1649, §7.3.156). TimeZone is "±n", n quarter hours from
+// UTC (§7.3.163: "+8" is two hours ahead). DaylightSavingTime (§7.3.164):
+// NO_ADJUSTMENT (0), PLUS_ONE_HOUR_ADJUSTMENT (1), PLUS_TWO_HOURS_ADJUSTMENT (2).
+type LocalTimeZone struct {
+	TimeZone           string `json:"time_zone"`
+	DaylightSavingTime uint32 `json:"daylight_saving_time"`
 }
 
 type SupportedFeature struct {
@@ -125,7 +220,8 @@ type SupportedFeature struct {
 
 type TerminalInfo struct {
 	IMEI string `json:"imei,omitempty"`
-	SV   string `json:"software_version,omitempty"` // 3GPP2 MEID
+	SV   string `json:"software_version,omitempty"`
+	MEID string `json:"meid,omitempty"` // 3GPP2-MEID (1471, TS 29.272 §7.3.6), hex
 }
 
 type AuthInfo struct {
@@ -221,6 +317,53 @@ type S6aAnswer struct {
 	RedirectHosts        []string `json:"redirect_hosts,omitempty"`
 	RedirectHostUsage    uint32   `json:"redirect_host_usage,omitempty"`
 	RedirectMaxCacheTime uint32   `json:"redirect_max_cache_time,omitempty"`
+
+	// Further AVPs of an application's ULA or AIA (TS 29.272 §7.2).
+
+	// ErrorDiagnostic (1614, §7.3.128), with an Experimental-Result.
+	ErrorDiagnostic *uint32 `json:"error_diagnostic,omitempty"`
+	// UTRANVectors and GERANVectors (1415, 1416) of an AIA, beside
+	// AuthVectors (E-UTRAN).
+	UTRANVectors []UTRANVector `json:"utran_vectors,omitempty"`
+	GERANVectors []GERANVector `json:"geran_vectors,omitempty"`
+	// UEUsageType (1680, §7.3.202), of an AIA.
+	UEUsageType *uint32 `json:"ue_usage_type,omitempty"`
+
+	// The MME's answer to a CLR, IDR, DSR or RSR, in the gateway's reply to
+	// the application; SupportedFeatures and FailedAVPs above carry the
+	// answer's own. Octet strings hex.
+
+	// IDAFlags (1441, §7.3.47) and DSAFlags (1422, §7.3.26).
+	IDAFlags uint32 `json:"ida_flags,omitempty"`
+	DSAFlags uint32 `json:"dsa_flags,omitempty"`
+	// IMSVoiceOverPSSessionsSupported (1492, §7.3.106): NOT_SUPPORTED (0),
+	// SUPPORTED (1).
+	IMSVoiceOverPSSessionsSupported *uint32 `json:"ims_voice_over_ps_sessions_supported,omitempty"`
+	// LastUEActivityTime (1494, §7.3.108).
+	LastUEActivityTime *time.Time `json:"last_ue_activity_time,omitempty"`
+	// RATType (1032, TS 29.212 §5.3.31) of the IDA.
+	RATType                uint32                  `json:"rat_type,omitempty"`
+	EPSUserState           *EPSUserState           `json:"eps_user_state,omitempty"`
+	EPSLocationInformation *EPSLocationInformation `json:"eps_location_information,omitempty"`
+	LocalTimeZone          *LocalTimeZone          `json:"local_time_zone,omitempty"`
+}
+
+// UTRANVector (1415, TS 29.272 §7.3.19); octet strings hex.
+type UTRANVector struct {
+	Item uint32 `json:"item"`
+	RAND string `json:"rand"`
+	XRES string `json:"xres"`
+	AUTN string `json:"autn"`
+	CK   string `json:"ck"` // Confidentiality-Key (625, TS 29.229)
+	IK   string `json:"ik"` // Integrity-Key (626, TS 29.229)
+}
+
+// GERANVector (1416, TS 29.272 §7.3.20); octet strings hex.
+type GERANVector struct {
+	Item uint32 `json:"item"`
+	RAND string `json:"rand"`
+	SRES string `json:"sres"`
+	Kc   string `json:"kc"`
 }
 
 // FailedAVPEntry describes a single AVP to wrap inside a Failed-AVP grouped

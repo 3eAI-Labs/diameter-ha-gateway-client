@@ -6,6 +6,39 @@ versioning follows [SemVer](https://semver.org/) (pre-1.0: a minor version may b
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-10-18
+
+### Added
+
+All additions are new optional fields; no field changes name or type. Octet strings are hex.
+
+- `S6aEvent`, from the MME's requests: `active_apns` (Active-APN whole, with Context-Identifier),
+  `sms_register_request`, `sgs_mme_identity`, `coupled_node_diameter_id`, `adjacent_plmns` (ULR),
+  `air_flags` (AIR), `eps_location_information` (PUR), `maximum_ue_availability_time` and
+  `visited_network_identifier` (NOR); `terminal_info.meid`.
+- `S6aEvent`, for the requests an application sends: `clr_flags` (CLR), `reset_ids` (IDR, RSR),
+  `user_ids` (RSR, beyond `imsi`), `trace_reference`, `ts_codes`, `ss_codes` (DSR).
+  `supported_features` and `drmp` are now sent in these requests too.
+- `S6aAnswer`, in an application's ULA or AIA: `error_diagnostic`, `utran_vectors`,
+  `geran_vectors`, `ue_usage_type`.
+- `S6aAnswer`, in the gateway's reply to a CLR, IDR, DSR or RSR — the MME's answer, which until now
+  was reduced to its result: `ida_flags`, `dsa_flags`, `ims_voice_over_ps_sessions_supported`,
+  `last_ue_activity_time`, `rat_type`, `eps_user_state`, `eps_location_information`,
+  `local_time_zone`, and its `supported_features` and `failed_avps`.
+- Types `ActiveAPN`, `EPSLocationInformation`, `MMELocationInformation`,
+  `SGSNLocationInformation`, `EPSUserState`, `LocalTimeZone`, `UTRANVector`, `GERANVector`.
+
+### Changed
+
+- `mip6_home_link_prefix` is hex: the prefix length octet and the 16-octet prefix (RFC 5447
+  §4.2.4). The gateway wrote the string's own bytes, which cannot hold that binary value in JSON.
+- From a NOR, `service_selection` is the NOR's own Service-Selection only; the gateway filled it
+  with a ULR's first Active-APN's (see `active_apns`).
+
+### Fixed
+
+- The comment on `TerminalInfo.SV` called it the 3GPP2 MEID; it is the Software-Version.
+
 ## [0.1.0] — 2026-10-16
 
 ### Added
@@ -54,5 +87,6 @@ versioning follows [SemVer](https://semver.org/) (pre-1.0: a minor version may b
 - Gateway 0.9.4 also subscribed to `diameter.s6a.pur` and `diameter.s6a.nor` to send PUR/NOR
   towards an MME; it no longer does. Both subjects carry an MME's request to the application only.
 
-[Unreleased]: https://github.com/3eAI-Labs/diameter-ha-gateway-client/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/3eAI-Labs/diameter-ha-gateway-client/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/3eAI-Labs/diameter-ha-gateway-client/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/3eAI-Labs/diameter-ha-gateway-client/releases/tag/v0.1.0
